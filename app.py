@@ -102,6 +102,54 @@ st.markdown("""
         border-bottom: 2px solid #667eea;
         padding-bottom: 0.5rem;
     }
+    /* Extracted text box */
+    .extracted-text {
+        background: #f5f5f5;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 3px solid #667eea;
+    }
+    /* Analysis cards */
+    .analysis-card {
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 1rem;
+        color: #333;
+    }
+    .analysis-card .category-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+        text-transform: capitalize;
+    }
+    .analysis-card .status {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .analysis-card.compliant { background: #ede7f6; border-left: 4px solid #b39ddb; }
+    .analysis-card.not-compliant { background: #FFEBEE; border-left: 4px solid #EF5350; }
+
+    /* Dark theme overrides */
+    @media (prefers-color-scheme: dark) {
+        body, .main, .block-container {
+            background-color: #0f1115 !important;
+            color: #e6eef8 !important;
+        }
+        .jumbotron { box-shadow: none; }
+        .feature-card { background: #131417; border-left-color: #5b61d1; color: #e6eef8; }
+        .feature-card h3 { color: #9fb3ff; }
+        .section-title { color: #e6eef8; border-bottom-color: #5b61d1; }
+        .extracted-text { background: #121216; border-left-color: #5b61d1; color: #e6eef8; }
+        .extracted-text pre { color: #e6eef8; }
+        .analysis-card { color: #e6eef8; }
+        .analysis-card.compliant { background: linear-gradient(90deg,#1b1b2a 0%,#151522 100%); border-left-color: #5b61d1; }
+        .analysis-card.not-compliant { background: linear-gradient(90deg,#2a1515 0%,#1d0f0f 100%); border-left-color: #ff6b6b; }
+        .analysis-card .status { color: #b3c7ff; }
+        .analysis-card.not-compliant .status { color: #ffb3b3; }
+        .warnings, .no-warnings { color: #cbd7ff; font-size: 0.85rem; }
+    }
 </style>
 <style>
 /* File uploader browse button */
@@ -268,7 +316,7 @@ if "analysis_results" in st.session_state and st.session_state.analysis_results 
         escaped_text = extracted_text[:500].replace("<", "&lt;").replace(">", "&gt;")
         ellipsis = "..." if len(extracted_text) > 500 else ""
         st.markdown(f"""
-        <div style="background: #f5f5f5; padding: 1rem; border-radius: 8px; border-left: 3px solid #667eea;">
+        <div class="extracted-text">
             <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; font-size: 0.9rem;">{escaped_text}{ellipsis}</pre>
         </div>
         """, unsafe_allow_html=True)
@@ -288,14 +336,12 @@ if "analysis_results" in st.session_state and st.session_state.analysis_results 
                 warnings = analysis.get("warnings", [])
                 status_color = "#764ba2" if compliant else "#D32F2F"
                 status_text = "COMPLIANT" if compliant else "NOT COMPLIANT"
-                bg_color = "#ede7f6" if compliant else "#FFEBEE"
-                border_color = "#b39ddb" if compliant else "#EF5350"
-                warnings_html = f'<div style="font-size: 0.85rem; color: #666;">Warnings: {', '.join(warnings)}</div>' if warnings else '<div style="font-size: 0.85rem; color: #764ba2;">No concerning ingredients found</div>'
-                
+                warnings_html = f'<div class="warnings">Warnings: {", ".join(warnings)}</div>' if warnings else '<div class="no-warnings">No concerning ingredients found</div>'
+
                 st.markdown(f"""
-                <div style="background: {bg_color}; padding: 1rem; border-radius: 8px; border-left: 4px solid {border_color}; text-align: center;">
-                    <div style="font-weight: 600; color: #333; margin-bottom: 0.5rem; text-transform: capitalize;">{category.replace('-', ' ')}</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: {status_color}; margin-bottom: 0.5rem;">{status_text}</div>
+                <div class="analysis-card { 'compliant' if compliant else 'not-compliant' }">
+                    <div class="category-title">{category.replace('-', ' ')}</div>
+                    <div class="status" style="color: {status_color};">{status_text}</div>
                     {warnings_html}
                 </div>
                 """, unsafe_allow_html=True)
