@@ -20,7 +20,6 @@ wheels/
 .installed.cfg
 *.egg
 
-.env
 .env.local
 credentials.json
 google-credentials.json
